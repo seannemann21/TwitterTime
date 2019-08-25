@@ -1,5 +1,5 @@
 export default function mockTweet(copies) {
-  let mockedTweets = '{['
+  let mockedTweets = '{ "tweets": ['
   for(let i = 0; i < copies; i++) {
     mockedTweets += mockedTweet
     if(i != (copies - 1)) {
@@ -32,7 +32,7 @@ const mockedTweet = `{
       }
     ]
   },
-  "source": "<a href="http://twitter.com" rel="nofollow">Twitter Web Client</a>",
+  "source": "<a href='http://twitter.com' rel='nofollow'>Twitter Web Client</a>",
   "in_reply_to_status_id": null,
   "in_reply_to_status_id_str": null,
   "in_reply_to_user_id": null,
@@ -82,7 +82,7 @@ const mockedTweet = `{
     "profile_background_color": "null",
     "profile_background_image_url": "null",
     "profile_background_image_url_https": "null",
-    "profile_background_tile": nulll,
+    "profile_background_tile": null,
     "profile_image_url": "null",
     "profile_image_url_https": "https://pbs.twimg.com/profile_images/942858479592554497/BbazLO9L_normal.jpg",
     "profile_banner_url": "https://pbs.twimg.com/profile_banners/6253282/1497491515",
@@ -94,7 +94,7 @@ const mockedTweet = `{
     "has_extended_profile": null,
     "default_profile": false,
     "default_profile_image": false,
-    "following": nul,
+    "following": null,
     "follow_request_sent": null,
     "notifications": null,
     "translator_type": "null"

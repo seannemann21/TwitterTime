@@ -6,6 +6,8 @@ import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import TimelineScreen from '../screens/TimelineScreen';
+import TweetScreen from '../screens/TweetScreen';
 
 const config = Platform.select({
   web: { headerMode: 'screen' },
@@ -67,10 +69,30 @@ SettingsStack.navigationOptions = {
 
 SettingsStack.path = '';
 
+
+
+const TimelineStack = createStackNavigator(
+  {
+    Timeline: TimelineScreen,
+    Tweet: TweetScreen
+  },
+  config
+);
+
+TimelineStack.navigationOptions = {
+  tabBarLabel: 'Timeline',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
+  ),
+};
+
+TimelineStack.path = '';
+
 const tabNavigator = createBottomTabNavigator({
   HomeStack,
   LinksStack,
   SettingsStack,
+  TimelineStack
 });
 
 tabNavigator.path = '';

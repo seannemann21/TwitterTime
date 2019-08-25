@@ -25,6 +25,25 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "android" : {
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "quiqly.herokuapp.com",
+              "pathPrefix": "/auth/twitter/callback"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "scheme": "expo.examples.with-webbrowser-redirect"
   }
 }
