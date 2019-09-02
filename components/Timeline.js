@@ -1,18 +1,24 @@
 import React, { Component } from 'react'
-import { getHomeTimeline} from '../lib/api/TweetTimelines'
+import { getHomeTimeline, getMockedHomeTimeline} from '../lib/api/TweetTimelines'
 import Tweet from './Tweet'
 import TimelineTweet from './TimelineTweet'
 import { requestToken } from '../lib/api/Authentication'
 import { Linking} from 'expo'
 import * as WebBrowser from 'expo-web-browser'
-import { Button, StyleSheet, Text, View, FlatList } from 'react-native'
+import { AppState, Button, StyleSheet, Text, View, FlatList } from 'react-native'
 import { updateExpression } from '@babel/types';
+import { SQLite } from 'expo-sqlite';
 
 export default class Timeline extends Component {
 
   constructor(props) {
     super(props)
-    this.state = {timelineTweets: []}
+    this.state = {timelineTweets: [], secondsOnPage: 0, appState: AppState.currentState,}
+    this.startDateTime = new Date()
+    this.startTime = this.startDateTime.getTime() / 1000
+    this.db = SQLite.openDatabase('quiqly')
+    this.date = `${(this.startDateTime.getMonth() + 1)}-${this.startDateTime.getDate()}-${this.startDateTime.getFullYear()}`
+    this.startUpTimer()
   }
 
 
@@ -21,24 +27,74 @@ export default class Timeline extends Component {
     console.log(Linking.makeUrl())
 
     Linking.addEventListener('url', this.handleRedirect)
-    
-    getHomeTimeline().then(timeline => {
-      this.setState({timelineTweets: timeline.tweets})
+
+    getMockedHomeTimeline().then(timeline => {
+      const tweetsObj = JSON.parse(timeline)
+      this.setState({timelineTweets: tweetsObj.tweets})
     })
     */
+
+    AppState.addEventListener('change', this._handleAppStateChange);
+
 
 
   }
 
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this._handleAppStateChange);
+  }
+
+  _handleAppStateChange = (nextAppState) => {
+    if (
+      this.state.appState.match(/inactive|background/) &&
+      nextAppState === 'active'
+    ) {
+      console.log('App has come to the foreground!');
+      this.startUpTimer()
+    } else {
+      clearInterval(this._interval)
+      this.db.transaction((tx) => {
+        tx.executeSql('INSERT OR REPLACE INTO time_open (date, time_on_page) values(?, ?);', [this.date, this.state.secondsOnPage])
+      })
+    }
+    this.setState({appState: nextAppState});
+  };
+
+  startUpTimer() {
+    this.db.transaction((tx) => {
+      tx.executeSql('CREATE TABLE IF NOT EXISTS time_open (date TEXT PRIMARY KEY, time_on_page INT);', [], (_, resultSet) => {}, (_, error) => {
+        console.log(error)
+      })
+      console.log("Test")
+      tx.executeSql('SELECT time_on_page FROM time_open WHERE date = ?', [this.date], (_, { rows }) => {
+        console.log("Test")
+        let seconds = 0
+        console.log(rows)
+        if(rows.length > 0) {
+          console.log(rows)
+          seconds = rows._array[0].time_on_page
+        }
+        this.timeOnPage = seconds
+        console.log(this.timeOnPage)
+      }, (tx2, error) => {
+        console.log(error)
+      })
+    })
+
+    this.startTime = new Date().getTime() / 1000
+
+    this._interval = setInterval(() => {
+      const currentTime = new Date().getTime() / 1000
+      this.setState({
+        secondsOnPage: Math.round(this.timeOnPage + currentTime - this.startTime)
+      })
+    }, 1000);
+  }
+
 
   _handleRedirect = event => {
-    console.log("Hello World")
-    //WebBrowser.dismissBrowser();
-
-    console.log(event.url)
     let data = Linking.parse(event.url)
 
-    console.log(data.queryParams)
     this.token = data.queryParams.token
     this.secret = data.queryParams.secret
     this.updateTimeline()
@@ -76,17 +132,17 @@ export default class Timeline extends Component {
 
   render() {
     return (
-      
+
       <View style={{flex: 1}}>
         <Button
           title="Open URL with Expo.WebBrowser"
           onPress={() => {this._openWebBrowserAsync()}
           }
         />
-        <Text>{Linking.makeUrl()}</Text>
+        <Text>{this.state.secondsOnPage}</Text>
         <FlatList
           data={this.state.timelineTweets}
-          renderItem={({item}) => <TimelineTweet tweetData={item} navigation={this.props.navigation} />}
+          renderItem={({item}) => <TimelineTweet tweetData={item} navigation={this.props.navigation} credentials={{token: this.token, secret: this.secret}}/>}
         />
       </View>
     )
