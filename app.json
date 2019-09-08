@@ -42,7 +42,8 @@
             "DEFAULT"
           ]
         }
-      ]
+      ],
+      "package": "sean.nemann.quiqly"
     },
     "scheme": "expo.examples.with-webbrowser-redirect"
   }
