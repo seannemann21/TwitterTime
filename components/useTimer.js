@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { SQLite } from 'expo-sqlite';
 import { AppState } from 'react-native'
-import useInterval from './useInterval'
 
 export default function useTimer() {
 
@@ -13,15 +12,18 @@ export default function useTimer() {
   const [previousTimeOnPage, setPreviousTimeOnPage] = useState(0)
 
   useEffect(() => {
-    startUpTimer()
+    updatePreviousTimeOnPage()
   }, [])
 
-  useInterval(() => {
-    const currentTime = new Date().getTime() / 1000
-    setSecondsOnPage(Math.round(previousTimeOnPage + currentTime - startTime))
-  }, 1000)
+  useEffect(() => {
+    const id = setInterval(() => {
+      const currentTime = new Date().getTime() / 1000
+      setSecondsOnPage(Math.round(previousTimeOnPage + currentTime - startTime))
+    }, 1000)
+    return(() => {clearInterval(id)})
+  })
 
-  const startUpTimer = () => {
+  const updatePreviousTimeOnPage = () => {
     if(!db) return
     const startDateTime = new Date()
     setStartTime(startDateTime.getTime() / 1000)
@@ -31,17 +33,13 @@ export default function useTimer() {
       tx.executeSql('CREATE TABLE IF NOT EXISTS time_open (date TEXT PRIMARY KEY, time_on_page INT);', [], (_, resultSet) => {}, (_, error) => {
         console.log(error)
       })
-      console.log("Test")
       tx.executeSql('SELECT time_on_page FROM time_open WHERE date = ?', [date], (_, { rows }) => {
-        console.log("Test")
         let seconds = 0
         if(rows.length > 0) {
           seconds = rows._array[0].time_on_page
         }
         timeOnPage = seconds
         setPreviousTimeOnPage(timeOnPage)
-        console.log(timeOnPage)
-        console.log(timeOnPage)
       }, (tx2, error) => {
         console.log(error)
       })
@@ -54,7 +52,7 @@ export default function useTimer() {
       appState.match(/inactive|background/) &&
       nextAppState === 'active'
     ) {
-      startUpTimer()
+      updatePreviousTimeOnPage()
     } else {
       db.transaction((tx) => {
         tx.executeSql('INSERT OR REPLACE INTO time_open (date, time_on_page) values(?, ?);', [date, secondsOnPage])
@@ -70,7 +68,6 @@ export default function useTimer() {
       AppState.removeEventListener('change', _handleAppStateChange);
     };
   })
-
 
 
     return { secondsOnPage }
