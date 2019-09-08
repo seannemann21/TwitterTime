@@ -53,7 +53,9 @@ export default function useTimer() {
       updatePreviousTimeOnPage()
     } else {
       db.transaction((tx) => {
-        tx.executeSql('INSERT OR REPLACE INTO time_open (date, time_on_page) values(?, ?);', [instanceRef.current.date, secondsOnPage])
+        tx.executeSql('INSERT OR REPLACE INTO time_open (date, time_on_page) values(?, ?);', [instanceRef.current.date, secondsOnPage], (_, resultSet) => {}, (_, error) => {
+          console.log(error)
+        })
       })
     }
     instanceRef.current.appState = nextAppState
