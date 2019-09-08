@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
 import { getHomeTimeline } from '../lib/api/TweetTimelines'
-import Tweet from './Tweet'
 import TimelineTweet from './TimelineTweet'
-import { StyleSheet, Text, View, FlatList } from 'react-native'
-import withTimer from './withTimer'
+import { Text, View, FlatList } from 'react-native'
 import AuthenticationButton from './AuthenticationButton'
 import useTimer from './useTimer'
 

@@ -16,7 +16,8 @@ export default function useTimer() {
   useEffect(() => {
     const id = setInterval(() => {
       const currentTime = new Date().getTime() / 1000
-      setSecondsOnPage(Math.round(instanceRef.current.prevTimeOnPage + currentTime - instanceRef.current.startTime))
+      instanceRef.current.secOnPage = Math.round(instanceRef.current.prevTimeOnPage + currentTime - instanceRef.current.startTime)
+      setSecondsOnPage(instanceRef.current.secOnPage)
     }, 100)
     return(() => {clearInterval(id)})
   })
@@ -36,6 +37,7 @@ export default function useTimer() {
         if(rows.length > 0) {
           seconds = rows._array[0].time_on_page
         }
+        console.log(rows)
         timeOnPage = seconds
         instanceRef.current.prevTimeOnPage = timeOnPage
       }, (tx2, error) => {
@@ -46,13 +48,16 @@ export default function useTimer() {
   }
 
   _handleAppStateChange = (nextAppState) => {
+    console.log("In handle app state change")
     if (
       instanceRef.current.appState.match(/inactive|background/) &&
       nextAppState === 'active'
     ) {
       updatePreviousTimeOnPage()
     } else {
+      console.log("Storing time on page")
       db.transaction((tx) => {
+        console.log(instanceRef.current.secOnPage)
         tx.executeSql('INSERT OR REPLACE INTO time_open (date, time_on_page) values(?, ?);', [instanceRef.current.date, secondsOnPage], (_, resultSet) => {}, (_, error) => {
           console.log(error)
         })
@@ -67,7 +72,7 @@ export default function useTimer() {
     return function cleanup() {
       AppState.removeEventListener('change', _handleAppStateChange);
     };
-  })
+  }, [])
 
 
     return { secondsOnPage }
