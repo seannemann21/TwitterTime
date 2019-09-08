@@ -16,9 +16,6 @@ export default class TweetFocused extends Component{
   }
 
   componentDidMount() {
-    console.log("xxxxxx Tweet Focused xxxxxx")
-    console.log(this.props)
-    console.log(this.props.credentials)
     getFullTweet(this.props.credentials.token, this.props.credentials.secret, this.props.tweetData.id_str).then(data => {
       this.setState({displayText: data.data.full_text,
                      firstImageUrl: data.data.entities.media && data.data.entities.media.length > 0 ? data.data.entities.media[0].media_url_https : null

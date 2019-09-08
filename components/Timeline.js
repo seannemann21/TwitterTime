@@ -5,11 +5,13 @@ import TimelineTweet from './TimelineTweet'
 import { StyleSheet, Text, View, FlatList } from 'react-native'
 import withTimer from './withTimer'
 import AuthenticationButton from './AuthenticationButton'
+import useTimer from './useTimer'
 
 function Timeline(props) {
   const [token, setToken] = useState();
   const [secret, setSecret] = useState();
   const [timelineTweets, setTimelineTweets] = useState();
+  const { secondsOnPage } = useTimer()
 
   const updateTimeline = (token, secret) => {
     getHomeTimeline(token, secret).then(timeline => {
@@ -24,7 +26,7 @@ function Timeline(props) {
           setSecret={(secret) => {setSecret(secret)}}
           authorizationCompleteCallback={() => {updateTimeline(token, secret)}}
       />
-      <Text>{props.secondsOnPage}</Text>
+      <Text>{secondsOnPage}</Text>
       <FlatList
         data={timelineTweets}
         renderItem={({item}) => <TimelineTweet tweetData={item} navigation={props.navigation} credentials={{token: token, secret: secret}}/>}
@@ -33,4 +35,4 @@ function Timeline(props) {
   )
 }
 
-export default withTimer(Timeline)
+export default Timeline

@@ -4,8 +4,6 @@ import Tweet from './Tweet'
 
 export default function TimelineTweet(props) {
 
-  console.log("XXXXXXX Timeline Tweet XXXXXXXX")
-  console.log(props)
   return (
     <View>
     <TouchableOpacity onPress={()=> {

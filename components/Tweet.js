@@ -6,7 +6,6 @@ import autolinkText from '../lib/AutolinkText'
 
 export default function Tweet(props) {
 
-  console.log(props.tweetData)
   return (
     <Card>
       <Text>{props.tweetData.user.name}</Text>
